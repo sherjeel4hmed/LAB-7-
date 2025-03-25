@@ -1,0 +1,138 @@
+#include <iostream>
+using namespace std;
+
+class Account {
+protected:
+    string acc_number;
+    double balance;
+    string name;
+    string type;
+    double deposits[10];
+    double withdrawals[10];
+    static int deposit_count;
+    static int withdrawal_count;
+
+public:
+    Account(string acc, double b, string n, string t) : acc_number(acc), balance(b), name(n), type(t) {}
+    
+    void deposit(double amount) {
+        if (amount > 0) {
+            balance += amount;
+            deposits[deposit_count++] = amount;
+        } else {
+            cout << "Enter a valid deposit amount." << endl;
+        }
+    }
+    
+    virtual void withdraw(double amount) {
+        if (amount > 0) {
+            if (amount > balance) {
+                cout << "Insufficient Balance" << endl;
+            } else {
+                balance -= amount;
+                withdrawals[withdrawal_count++] = amount;
+            }
+        } else {
+            cout << "Enter a valid withdrawal amount." << endl;
+        }
+    }
+    
+    virtual void calculateInterest() {
+        double interest = (balance * 0.04) / 12.0;
+        cout << "Balance: " << balance << "\nBalance After Interest: " << balance + interest << endl;
+    }
+    
+    void getAccountInfo() {
+        cout << "=== ACCOUNT DETAILS ===" << endl;
+        cout << "Account Number: " << acc_number << endl;
+        cout << "Balance: " << balance << endl;
+        cout << "Name: " << name << endl;
+        cout << "Account Type: " << type << endl;
+    }
+    
+    virtual void printStatement() {
+        cout << "=== TRANSACTION DETAILS ===" << endl;
+        for (int i = 0; i < deposit_count; i++) {
+            cout << i + 1 << " Amount Deposited: " << deposits[i] << endl;
+        }
+        for (int i = 0; i < withdrawal_count; i++) {
+            cout << i + 1 << " Amount Withdrawn: " << withdrawals[i] << endl;
+        }
+    }
+};
+
+int Account::deposit_count = 0;
+int Account::withdrawal_count = 0;
+
+class SavingsAccount : public Account {
+    double interest_rate;
+    double minimum_balance;
+
+public:
+    SavingsAccount(string acc, double b, string n, string t, double min, double rate) 
+        : Account(acc, b, n, t), minimum_balance(min), interest_rate(rate) {}
+    
+    void calculateInterest() override {
+        double interest = (balance * interest_rate) / 12.0;
+        cout << "Balance: " << balance << "\nBalance After Interest: " << balance + interest << endl;
+    }
+};
+
+class CheckingAccount : public Account {
+    double overdraft_limit;
+
+public:
+    CheckingAccount(string acc, double b, string n, string t, double limit) 
+        : Account(acc, b, n, t), overdraft_limit(limit) {}
+    
+    void withdraw(double amount) override {
+        if (amount > 0) {
+            if (amount > balance + overdraft_limit) {
+                cout << "Withdrawal exceeds overdraft limit." << endl;
+            } else {
+                balance -= amount;
+                withdrawals[withdrawal_count++] = amount;
+            }
+        } else {
+            cout << "Enter a valid withdrawal amount." << endl;
+        }
+    }
+};
+
+class FixedDepositAccount : public Account {
+    string maturityDate;
+    double fixedInterestRate;
+
+public:
+    FixedDepositAccount(string acc, double b, string n, string t, double rate, string maturity) 
+        : Account(acc, b, n, t), fixedInterestRate(rate), maturityDate(maturity) {}
+    
+    void calculateInterest() override {
+        double interest = balance * fixedInterestRate;
+        cout << "Balance: " << balance << "\nBalance After Fixed Interest: " << balance + interest << endl;
+    }
+};
+
+int main() {
+    SavingsAccount sa("12345", 5000, "Alice", "Savings", 1000, 0.05);
+    CheckingAccount ca("67890", 2000, "Bob", "Checking", 500);
+    FixedDepositAccount fda("54321", 10000, "Charlie", "FixedDeposit", 0.06, "12/2025");
+    
+    sa.deposit(2000);
+    sa.withdraw(1000);
+    sa.getAccountInfo();
+    sa.calculateInterest();
+    sa.printStatement();
+    
+    cout << "\n";
+    ca.deposit(1000);
+    ca.withdraw(3000);
+    ca.getAccountInfo();
+    ca.printStatement();
+    
+    cout << "\n";
+    fda.calculateInterest();
+    fda.getAccountInfo();
+    
+    return 0;
+}
