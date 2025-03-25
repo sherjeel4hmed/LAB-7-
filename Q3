@@ -1,0 +1,99 @@
+#include <iostream>
+using namespace std;
+
+class Currency {
+protected:
+    double amount;
+    string currency_code;
+    string currency_symbol;
+    double exchange_rate;
+
+public:
+    Currency(double a, string cc, string cs, double er = -1) 
+        : amount(a), currency_code(cc), currency_symbol(cs), exchange_rate(er) {}
+
+    virtual void convertToBase() {
+        if (exchange_rate != -1) {
+            double baseAmount = amount * exchange_rate;
+            cout << "Amount in " << currency_symbol << ": " << amount << endl;
+            cout << "Amount in USD: " << baseAmount << endl;
+        } else {
+            cout << "Exchange rate not given" << endl;
+        }
+    }
+
+    void convertTo(Currency &targetCurrency) {
+        if (exchange_rate != -1 && targetCurrency.exchange_rate != -1) {
+            double baseAmount = amount * exchange_rate;
+            double targetAmount = baseAmount / targetCurrency.exchange_rate;
+            cout << "Amount in target Currency (" << targetCurrency.currency_symbol << "): " << targetAmount << endl;
+        } else {
+            cout << "Conversion not possible due to missing exchange rate" << endl;
+        }
+    }
+
+    virtual void displayCurrency() {
+        cout << "Currency: " << currency_code << " (" << currency_symbol << "), Amount: " << amount << endl;
+    }
+};
+
+class Dollar : public Currency {
+public:
+    Dollar(double amt) : Currency(amt, "USD", "$", 1.0) {}
+
+    void convertToBase() override {
+        cout << "Converted amount: " << amount << " to base Currency: " << amount << endl;
+    }
+
+    void displayCurrency() override {
+        cout << "Currency: " << currency_code << " (" << currency_symbol << "), Amount: " << amount << endl;
+    }
+};
+
+class Euro : public Currency {
+public:
+    Euro(double amt) : Currency(amt, "EUR", "EUR", 1.1) {}
+
+    void convertToBase() override {
+        double baseAmount = amount * exchange_rate;
+        cout << "Converted amount: " << amount << " to base Currency: " << baseAmount << endl;
+    }
+
+    void displayCurrency() override {
+        cout << "Currency: " << currency_code << " (" << currency_symbol << "), Amount: " << amount << endl;
+    }
+};
+
+class Rupee : public Currency {
+public:
+    Rupee(double amt) : Currency(amt, "PKR", "RS", 0.0065) {}
+
+    void convertToBase() override {
+        double baseAmount = amount * exchange_rate;
+        cout << "Converted amount: " << amount << " to base Currency: " << baseAmount << endl;
+    }
+
+    void displayCurrency() override {
+        cout << "Currency: " << currency_code << " (" << currency_symbol << "), Amount: " << amount << endl;
+    }
+};
+
+int main() {
+    Dollar d(100);
+    Euro e(50);
+    Rupee r(20000);
+
+    d.displayCurrency();
+    e.displayCurrency();
+    r.displayCurrency();
+
+    d.convertToBase();
+    e.convertToBase();
+    r.convertToBase();
+
+    d.convertTo(e);
+    e.convertTo(r);
+    r.convertTo(d);
+
+    return 0;
+}
