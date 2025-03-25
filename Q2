@@ -1,0 +1,128 @@
+#include<iostream>
+#include <cmath>
+using namespace std;
+
+class Position {
+    float x;
+    float y;
+public:
+    Position(float x = 0, float y = 0) : x(x), y(y) {}
+    double getX() const { return x; }
+    double getY() const { return y; }
+    void setX(double newX) { x = newX; }
+    void setY(double newY) { y = newY; }
+    void display() const {
+        cout << "(" << x << ", " << y << ")";
+    }
+    double distanceTo(const Position& other) const {
+        return sqrt((x - other.x) * (x - other.x) + (y - other.y) * (y - other.y));
+    }
+};
+
+class Shape {
+protected:
+    Position position;
+    string color;
+    string borderthickness;
+public:
+    Shape(Position p, string c, string bd) : position(p), color(c), borderthickness(bd) {}
+    virtual void draw() {
+        cout << "Drawing a Shape at position: (" << position.getX() << ", " << position.getY() << ")" << endl;
+    }
+    virtual double calculateArea() { return 0.0; }
+    virtual double calculatePerimeter() { return 0.0; }
+    virtual ~Shape() {}
+};
+
+class Circle : public Shape {
+    float radius;
+public:
+    Circle(Position p, string c, string bd, float r) : Shape(p, c, bd), radius(r) {}
+    void draw() override {
+        cout << "Drawing Circle at ";
+        position.display();
+        cout << " with radius " << radius << endl;
+    }
+    double calculateArea() override {
+        return 3.14 * radius * radius;
+    }
+    double calculatePerimeter() override {
+        return 2 * 3.14 * radius;
+    }
+};
+
+class Rectangle : public Shape {
+    float width;
+    float height;
+public:
+    Rectangle(Position leftcorner, string c, string bd, float w, float h) : Shape(leftcorner, c, bd), width(w), height(h) {}
+    void draw() override {
+        cout << "Drawing Rectangle at ";
+        position.display();
+        cout << " with width " << width << " and height " << height << endl;
+    }
+    double calculateArea() override {
+        return width * height;
+    }
+    double calculatePerimeter() override {
+        return 2 * (width + height);
+    }
+};
+
+class Polygon : public Shape {
+    Position* vertices;
+    int numVertices;
+public:
+    Polygon(Position* points, int n, string c, string bd) : Shape(points[0], c, bd), numVertices(n) {
+        vertices = new Position[numVertices];
+        for (int i = 0; i < numVertices; i++) {
+            vertices[i] = points[i];
+        }
+    }
+    ~Polygon() {
+        delete[] vertices;
+    }
+    void draw() override {
+        cout << "Drawing Polygon with " << numVertices << " vertices at: ";
+        for (int i = 0; i < numVertices; i++) {
+            vertices[i].display();
+            cout << " ";
+        }
+        cout << endl;
+    }
+    double calculatePerimeter() override {
+        double perimeter = 0;
+        for (int i = 0; i < numVertices - 1; i++) {
+            perimeter += vertices[i].distanceTo(vertices[i + 1]);
+        }
+        perimeter += vertices[numVertices - 1].distanceTo(vertices[0]); 
+        return perimeter;
+    }
+    double calculateArea() override {
+        double area = 0;
+        for (int i = 0; i < numVertices - 1; i++) {
+            area += (vertices[i].getX() * vertices[i + 1].getY()) - (vertices[i + 1].getX() * vertices[i].getY());
+        }
+        area += (vertices[numVertices - 1].getX() * vertices[0].getY()) - (vertices[0].getX() * vertices[numVertices - 1].getY());
+        return (area) / 2.0;
+    }
+};
+
+int main() {
+    Circle c(Position(5, 5), "Red", "10", 2.44);
+    Rectangle r(Position(0, 0), "Blue", "10", 7, 6);
+
+    Position trianglePoints[] = {Position(0, 0), Position(4, 0), Position(2, 3)};
+    Polygon triangle(trianglePoints, 3, "Green", "5");
+
+    c.draw();
+    cout << "Circle Area: " << c.calculateArea() << ", Perimeter: " << c.calculatePerimeter() << endl;
+
+    r.draw();
+    cout << "Rectangle Area: " << r.calculateArea() << ", Perimeter: " << r.calculatePerimeter() << endl;
+
+    triangle.draw();
+    cout << "Polygon Area: " << triangle.calculateArea() << ", Perimeter: " << triangle.calculatePerimeter() << endl;
+
+    return 0;
+}
