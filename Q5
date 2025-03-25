@@ -1,0 +1,102 @@
+#include <iostream>
+using namespace std;
+
+class Media {
+    string title;
+    string publication_date;
+    int uniqueID;
+    string publisher;
+    static int id;
+
+public:
+    Media(string t, string pd, string p) : title(t), publication_date(pd), publisher(p) {
+        uniqueID = id;
+        id++;
+    }
+
+    string getTitle() { return title; }
+    string getPublicationDate() { return publication_date; }
+    int getUniqueID() { return uniqueID; }
+    string getPublisher() { return publisher; }
+
+    virtual void displayInfo() {
+        cout << "Title: " << title << "\nPublication Date: " << publication_date << "\nPublisher: " << publisher << "\nID: " << uniqueID << endl;
+    }
+
+    void checkout(int id) {
+        if (uniqueID == id) {
+            cout << title << " has been checked out\n";
+        } else {
+            cout << id << " Not Found\n";
+        }
+    }
+    
+    void returnItem() { cout << title << " has been returned.\n"; }
+
+    bool searchMedia(string t) { return title == t; }
+    bool searchMedia(int id) { return uniqueID == id; }
+    bool searchMedia(string p, string date) { return publisher == p && publication_date == date; }
+};
+
+int Media::id = 0;
+
+class Book : public Media {
+    string author;
+    string ISBN;
+    int numberOfPages;
+
+public:
+    Book(string t, string pd, string pub, string auth, string isbn, int pages)
+        : Media(t, pd, pub), author(auth), ISBN(isbn), numberOfPages(pages) {}
+
+    void displayInfo() override {
+        Media::displayInfo();
+        cout << "Author: " << author << "\nISBN: " << ISBN << "\nPages: " << numberOfPages << endl;
+    }
+};
+
+class DVD : public Media {
+    string director;
+    int duration;
+    double rating;
+
+public:
+    DVD(string t, string pd, string pub, string dir, int dur, double rate)
+        : Media(t, pd, pub), director(dir), duration(dur), rating(rate) {}
+
+    void displayInfo() override {
+        Media::displayInfo();
+        cout << "Director: " << director << "\nDuration: " << duration << " mins\nRating: " << rating << endl;
+    }
+};
+
+class CD : public Media {
+    string artist;
+    int numberOfTracks;
+    string genre;
+
+public:
+    CD(string t, string pd, string pub, string art, int tracks, string gen)
+        : Media(t, pd, pub), artist(art), numberOfTracks(tracks), genre(gen) {}
+
+    void displayInfo() override {
+        Media::displayInfo();
+        cout << "Artist: " << artist << "\nTracks: " << numberOfTracks << "\nGenre: " << genre << endl;
+    }
+};
+
+int main() {
+    Book b("C++ Programming", "2023", "XYZ Publications", "Bjarne Stroustrup", "123456", 500);
+    DVD d("Inception", "2010", "Warner Bros", "Christopher Nolan", 148, 8.8);
+    CD c("Thriller", "1982", "Epic Records", "Michael Jackson", 9, "Pop");
+
+    b.displayInfo();
+    d.displayInfo();
+    c.displayInfo();
+
+    cout << "\nSearching for 'Inception': " << (d.searchMedia("Inception") ? "Found" : "Not Found") << endl;
+    cout << "Searching by ID 0: " << (b.searchMedia(0) ? "Found" : "Not Found") << endl;
+    cout << "Searching by Publisher and Date: " << (c.searchMedia("Epic Records", "1982") ? "Found" : "Not Found") << endl;
+    
+    return 0;
+}
